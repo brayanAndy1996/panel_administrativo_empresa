@@ -1,0 +1,74 @@
+{
+  "name": "panel-administrativo-empresa",
+  "version": "0.2.0",
+  "private": true,
+  "description": "Panel administrativo local de la empresa de software",
+  "main": "dist/electron/main.cjs",
+  "packageManager": "npm@11.3.0",
+  "engines": {
+    "node": "24.1.0",
+    "npm": "11.3.0"
+  },
+  "scripts": {
+    "dev": "npm run build && electron .",
+    "build": "npm run build:frontend && npm run build:electron",
+    "build:frontend": "next build src/frontend",
+    "build:electron": "npm run build:backend && esbuild src/electron/main/index.ts --bundle --platform=node --format=cjs --target=node24 --packages=external --outfile=dist/electron/main.cjs && esbuild src/electron/preload/index.ts --bundle --platform=node --format=cjs --target=node24 --packages=external --outfile=dist/electron/preload.cjs && esbuild src/electron/main/security.ts --bundle --platform=node --format=cjs --target=node24 --packages=external --outfile=dist/electron/security.cjs && esbuild src/electron/main/protocol.ts --bundle --platform=node --format=cjs --target=node24 --packages=external --outfile=dist/electron/protocol.cjs",
+    "build:backend": "esbuild src/backend/infrastructure/database/cli.ts --bundle --platform=node --format=cjs --target=node24 --packages=external --outfile=dist/backend/migrate.cjs && esbuild src/backend/infrastructure/database/demo-cli.ts --bundle --platform=node --format=cjs --target=node24 --packages=external --outfile=dist/backend/demo.cjs",
+    "db:migrate": "npm run build:backend && node dist/backend/migrate.cjs",
+    "db:seed:demo": "npm run build:backend && node dist/backend/demo.cjs",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "test": "npm run build:backend && vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "npm run build && playwright test --config=playwright.config.ts",
+    "desktop:install": "node node_modules/electron/install.js",
+    "check": "npm run lint && npm run typecheck && npm test && npm run build",
+    "package:win": "npm run build && electron-builder --win nsis --x64"
+  },
+  "dependencies": {
+    "argon2": "0.45.1",
+    "sequelize": "6.37.8",
+    "sqlite3": "6.0.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "@playwright/test": "1.64.1",
+    "@types/node": "24.19.2",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "electron": "44.9.0",
+    "electron-builder": "26.15.3",
+    "esbuild": "0.28.2",
+    "eslint": "10.13.0",
+    "next": "16.4.2",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "typescript": "5.9.3",
+    "typescript-eslint": "8.72.0",
+    "vitest": "5.0.5"
+  },
+  "build": {
+    "appId": "com.empresasoftware.panel",
+    "productName": "Panel Administrativo",
+    "npmRebuild": false,
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "src/frontend/out/**/*",
+      "dist/electron/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    }
+  }
+}

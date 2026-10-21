@@ -1,0 +1,5 @@
+{
+  "name": "panel-no-preload-test-window",
+  "private": true,
+  "main": "main.cjs"
+}
